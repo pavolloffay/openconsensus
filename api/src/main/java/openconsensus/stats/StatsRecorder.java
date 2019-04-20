@@ -27,6 +27,17 @@ import openconsensus.trace.SpanContext;
  */
 public abstract class StatsRecorder {
   /**
+   * Constructs a new {@link Measure}.
+   *
+   * @param name name of {@code Measure}. Suggested format: {@code <web_host>/<path>}.
+   * @param description description of {@code Measure}.
+   * @param unit unit of {@code Measure}.
+   * @return a {@code Measure}.
+   * @since 0.1.0
+   */
+  public abstract Measure createMeasure(String name, String description, String unit);
+
+  /**
    * Records all given measurements, with the current {@link
    * openconsensus.tags.Tagger#getCurrentTagMap}.
    *

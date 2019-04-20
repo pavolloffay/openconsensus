@@ -29,16 +29,17 @@ import javax.annotation.concurrent.Immutable;
 public abstract class Measurement {
 
   /**
-   * Extracts the measured {@link Measure}.
+   * Returns the measured {@link Measure}.
    *
+   * @return the measured {@link Measure}.
    * @since 0.1.0
    */
   public abstract Measure getMeasure();
 
   /**
-   * Returns the value for the {@link Measurement}.
+   * Returns the measured value.
    *
-   * @return the value.
+   * @return the measured value.
    * @since 0.1.0
    */
   public abstract double getValue();
@@ -49,6 +50,7 @@ public abstract class Measurement {
   /**
    * Constructs a new {@link Measurement}.
    *
+   * @return the newly constructed {@code Measurement}.
    * @since 0.1.0
    */
   static Measurement create(Measure measure, double value) {
