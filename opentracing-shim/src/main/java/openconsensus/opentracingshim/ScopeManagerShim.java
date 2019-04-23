@@ -16,21 +16,25 @@
 
 package openconsensus.opentracingshim;
 
+import io.grpc.Context;
 import io.opentracing.Scope;
 import io.opentracing.ScopeManager;
 import io.opentracing.Span;
 
 @SuppressWarnings("deprecation")
 final class ScopeManagerShim implements ScopeManager {
-  private final openconsensus.trace.Tracer tracer;
+  private final Context.Key<openconsensus.trace.Span> activeSpanKey = Context.key("activeSpan");
 
-  public ScopeManagerShim(openconsensus.trace.Tracer tracer) {
-    this.tracer = tracer;
-  }
+  public ScopeManagerShim() {}
 
   @Override
   public Span activeSpan() {
-    return new SpanShim(tracer.getCurrentSpan());
+    openconsensus.trace.Span span = activeSpanKey.get();
+    if (span == null) {
+      span = openconsensus.trace.BlankSpan.INSTANCE;
+    }
+
+    return new SpanShim(span);
   }
 
   @Override
@@ -41,8 +45,10 @@ final class ScopeManagerShim implements ScopeManager {
   @Override
   @SuppressWarnings("MustBeClosedChecker")
   public Scope activate(Span span) {
-    openconsensus.trace.Span actualSpan = getActualSpan(span);
-    return new ScopeShim(tracer.withSpan(actualSpan));
+    SpanShim spanShim = getSpanShim(span);
+
+    Context spanContext = Context.current().withValue(activeSpanKey, spanShim.getSpan());
+    return new ContextScope(spanContext);
   }
 
   @Override
@@ -50,11 +56,31 @@ final class ScopeManagerShim implements ScopeManager {
     throw new UnsupportedOperationException();
   }
 
-  static openconsensus.trace.Span getActualSpan(Span span) {
+  static SpanShim getSpanShim(Span span) {
     if (!(span instanceof SpanShim)) {
       throw new IllegalArgumentException("span is not a valid SpanShim object");
     }
 
-    return ((SpanShim) span).getSpan();
+    return (SpanShim) span;
+  }
+
+  static final class ContextScope implements Scope {
+    Context toActivate;
+    Context toRestore;
+
+    public ContextScope(Context toActivate) {
+      this.toActivate = toActivate;
+      this.toRestore = toActivate.attach();
+    }
+
+    @Override
+    public Span span() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void close() {
+      toActivate.detach(toRestore);
+    }
   }
 }

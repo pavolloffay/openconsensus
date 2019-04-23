@@ -3,4 +3,5 @@ description = 'OpenConsensus OpenTracing Bridge'
 dependencies {
     api project(':openconsensus-api')
     api libraries.opentracing
+    api libraries.grpc_context
 }

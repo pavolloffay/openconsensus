@@ -48,7 +48,7 @@ public final class TracerShim implements Tracer {
    */
   public TracerShim(openconsensus.trace.Tracer tracer) {
     this.tracer = tracer;
-    this.scopeManagerShim = new ScopeManagerShim(tracer);
+    this.scopeManagerShim = new ScopeManagerShim();
   }
 
   @Override
