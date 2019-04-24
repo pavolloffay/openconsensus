@@ -16,6 +16,8 @@
 
 package openconsensus.opentracingshim;
 
+import static openconsensus.trace.unsafe.ContextUtils.CONTEXT_SPAN_KEY;
+
 import io.grpc.Context;
 import io.opentracing.Scope;
 import io.opentracing.ScopeManager;
@@ -23,13 +25,12 @@ import io.opentracing.Span;
 
 @SuppressWarnings("deprecation")
 final class ScopeManagerShim implements ScopeManager {
-  private final Context.Key<openconsensus.trace.Span> activeSpanKey = Context.key("activeSpan");
 
   public ScopeManagerShim() {}
 
   @Override
   public Span activeSpan() {
-    openconsensus.trace.Span span = activeSpanKey.get();
+    openconsensus.trace.Span span = CONTEXT_SPAN_KEY.get();
     if (span == null) {
       span = openconsensus.trace.BlankSpan.INSTANCE;
     }
@@ -47,7 +48,7 @@ final class ScopeManagerShim implements ScopeManager {
   public Scope activate(Span span) {
     SpanShim spanShim = getSpanShim(span);
 
-    Context spanContext = Context.current().withValue(activeSpanKey, spanShim.getSpan());
+    Context spanContext = Context.current().withValue(CONTEXT_SPAN_KEY, spanShim.getSpan());
     return new ContextScope(spanContext);
   }
 
