@@ -70,7 +70,6 @@ include(":sdk-extensions:tracing-incubator")
 include(":sdk-extensions:jaeger-remote-sampler")
 include(":sdk-extensions:jfr-events")
 include(":sdk-extensions:zpages")
-include(":sdk-extensions:jaeger-remote-sampler")
 
 val isCI = System.getenv("CI") != null
 gradleEnterprise {
